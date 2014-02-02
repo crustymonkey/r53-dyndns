@@ -6,9 +6,15 @@ import sys , glob
 try:
     import boto
 except:
-    print >> sys.stderr , 'You must have python boto installed for this'
-    print >> sys.stderr , '\tsudo apt-get install python-boto'
-    print >> sys.stderr , '\tsudo yum install python-boto'
+    print >> sys.stderr , 'You must have python boto version 2.24.0 or '
+    print >> sys.stderr , 'higher. Get the latest devel version from ' \
+        'https://github.com/boto/boto'
+    sys.exit(1)
+
+if boto.__version__ < '2.24.0':
+    print >> sys.stderr , 'You must have python boto version 2.24.0 or '
+    print >> sys.stderr , 'higher. Get the latest devel version from ' \
+        'https://github.com/boto/boto'
     sys.exit(1)
 
 setup(

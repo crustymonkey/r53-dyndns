@@ -1,0 +1,3 @@
+
+class IPParseError(Exception):
+    pass
