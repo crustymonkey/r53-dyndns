@@ -15,7 +15,7 @@ domain as the dns fqdn to update.
 
 ## Install ##
 * You can download this from github: https://github.com/crustymonkey/r53-dyndns
-* You can install with ''pip'' (or easy_install): pip install r53-dyndns
+* You can install with **pip** (or easy_install): pip install r53-dyndns
 
 ### Download ###
     $ wget -O r53-dyndns-master.zip 'https://github.com/crustymonkey/r53-dyndns/archive/master.zip'
@@ -41,7 +41,7 @@ default location (/etc/r53-dyndns.cfg) and the script is installed in
     * * * * *       /usr/bin/r53-dyndns.py
 
 #### Running a Daemon (advanced method) ####
-I '''highly recommed''' you configure a proper run as user/group in the config
+I ***highly recommed*** you configure a proper run as user/group in the config
 and start this as root.  This will then set up the log and run directories
 with the proper permissions.
 
@@ -49,6 +49,6 @@ This is really not all that difficult or advanced, but since I'm not including
 init scripts in this package, it means a bit of work on your part to make
 this run on startup.  If your config file is setup and all the files are in
 the expected locations, you should be able to just run the script with the
-''-d'' option:
+**-d** option:
 
     /usr/bin/r53-dyndns.py -d
