@@ -7,7 +7,7 @@ record with your dynamic ip when the IP changes
 
 from optparse import OptionParser
 from libr53dyndns.utils import daemonize , writePid , createLogDir , dropPrivs
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 import libr53dyndns as r53
 import traceback
 import os , logging , time , sys
@@ -43,7 +43,7 @@ def setLogger(opts , conf):
     logger = logging.getLogger('r53-dyndns')
     handler = None
     if opts.daemon:
-        handler = TimedRotatingFileHandler(opts.logfile , 'D' , 
+        handler = TimedRotatingFileHandler(conf.get('main' , 'logfile') , 'D' , 
             backupCount=conf.getint('main' , 'numlogs'))
     else:
         handler = logging.StreamHandler(sys.stderr)
@@ -72,6 +72,7 @@ def run(opts , conf):
     This will initialize everything and run the check and update any
     records that need to be updated
     """
+    LOG.debug('Starting run')
     ipGet = r53.IPGet(conf.get('main' , 'ipUrl') , 
         conf.getint('main' , 'iplookuptimeout') ,
         conf.getint('main' , 'iplookupmaxretries'))
@@ -84,8 +85,8 @@ def run(opts , conf):
         r53Ip = r53Obj.getIPR53()
         LOG.debug('Current IP for %s: %s' % (fqdn , r53Ip))
         if r53Ip != curIp:
-            LOG.info('Changing IP for %s from %s to %s' % (fqdn , curIp , 
-                r53Ip))
+            LOG.info('Changing IP for %s from %s to %s' % (fqdn , r53Ip , 
+                curIp))
             r53Obj.update(curIp)
 
 def main():
@@ -94,7 +95,7 @@ def main():
     if opts.daemon:
         # Do the things we need to do when we daemonize
         try:
-            createLogDir(os.path.dirname(conf.get('main' , 'logfile')) , 
+            createLogDir(conf.get('main' , 'logfile') , 
                 conf.get('main' , 'runasuser') , 
                 conf.get('main' , 'runasgroup'))
         except Exception as e:

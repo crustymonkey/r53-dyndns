@@ -19,11 +19,18 @@ def dropPrivs(user , group):
     os.setregid(gid , gid)
     os.setreuid(uid , uid)
 
-def createLogDir(logdir , owner , group):
+def createLogDir(logfile , owner , group):
+    logdir = os.path.dirname(logfile)
+    uid , gid = getUidGid(owner , group)
     if not os.path.isdir(logdir):
-        uid , gid = getUidGid(owner , group)
         os.makedirs(logdir , 0755)
         os.chown(logdir , uid , gid)
+    if not os.path.isfile(logfile):
+        # Just create the file
+        open(logfile , 'w').close()
+    os.chown(logfile , uid , gid)
+    os.chmod(logfile , 0644)
+
 
 def daemonize(stdin='/dev/null' , stdout='/dev/null' , stderr='/dev/null'):
     if os.fork() > 0:
@@ -55,3 +62,4 @@ def writePid(pidFile , owner , group):
     fh.write(str(pid))
     fh.close()
     os.chown(pidFile , uid , gid)
+    os.chmod(pidFile , 0644)
