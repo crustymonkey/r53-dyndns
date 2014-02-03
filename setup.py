@@ -28,7 +28,6 @@ setup(
         'Route53 and your own domain as the dns host.' ,
     scripts=glob.glob('bin/*') ,
     data_files=[ ('etc' , glob.glob('etc/*')) ] ,
-    package_dir={'': 'lib'} ,
     packages=['libr53dyndns'] ,
     classifiers=[
         'Development Status :: 4 - Beta' ,
