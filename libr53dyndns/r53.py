@@ -20,6 +20,7 @@ class R53(object):
         ttl:int         The ttl (in seconds) to use for updates.  This 
                         should be something low, like 60 seconds
         """
+        self.bogusIp = '169.254.0.1'
         self.fqdn = fqdn.lower()
         self.zone = zone.lower()
         self.ttl = int(ttl)
@@ -31,7 +32,13 @@ class R53(object):
         Returns the IP currently defined in your Route53 rrset for 
         your fqdn
         """
-        return self._getRecord().to_print()
+        rec = self._getRecord()
+        if rec is None:
+            # If we don't have a record for this, we will automatically
+            # create it with a bogus entry and return
+            self.create(self.bogusIp)
+            return self.bogusIp
+        return rec.to_print()
 
     def getIPDNS(self):
         """
@@ -49,6 +56,14 @@ class R53(object):
         if self._r53Zone is None:
             self._r53Zone = self._r53.get_zone(self.zone)
         self._r53Zone.update_a(self.fqdn , ip , self.ttl)
+
+    def create(self , ip):
+        """
+        Create an A record with fqdn and the passed IP address
+        """
+        if self._r53Zone is None:
+            self._r53Zone = self._r53.get_zone(self.zone)
+        self._r53Zone.add_a(self.fqdn , ip , self.ttl)
 
     def _getRecord(self):
         """

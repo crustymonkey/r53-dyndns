@@ -10,4 +10,4 @@ class DynConfig(SafeConfigParser):
 
     def getlist(self , section , key):
         val = self.get(section , key)
-        return reListSplit.split(val)
+        return self.reListSplit.split(val)

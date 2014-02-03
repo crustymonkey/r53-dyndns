@@ -25,7 +25,7 @@ def createLogDir(logdir , owner , group):
         os.makedirs(logdir , 0755)
         os.chown(logdir , uid , gid)
 
-def daemonize(stdin='/dev/null' , stdout='/dev/null' , stderr='/dev/null')
+def daemonize(stdin='/dev/null' , stdout='/dev/null' , stderr='/dev/null'):
     if os.fork() > 0:
         sys.exit(0)
     os.chdir('/')

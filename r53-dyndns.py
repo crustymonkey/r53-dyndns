@@ -7,9 +7,10 @@ record with your dynamic ip when the IP changes
 
 from optparse import OptionParser
 from libr53dyndns.utils import daemonize , writePid , createLogDir , dropPrivs
-from logging.handlers import RotatingFileHandler , StreamHandler
+from logging.handlers import RotatingFileHandler
 import libr53dyndns as r53
-import os , logging , time
+import traceback
+import os , logging , time , sys
 
 LOG = None
 
@@ -37,7 +38,7 @@ def getConfig(opts):
 
 def setLogger(opts , conf):
     global LOG
-    if LOG is None:
+    if LOG is not None:
         return
     logger = logging.getLogger('r53-dyndns')
     handler = None
@@ -45,10 +46,10 @@ def setLogger(opts , conf):
         handler = TimedRotatingFileHandler(opts.logfile , 'D' , 
             backupCount=conf.getint('main' , 'numlogs'))
     else:
-        handler = StreamHandler()
-    handler.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stderr)
+    logger.setLevel(logging.INFO)
     if opts.debug:
-        handler.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
@@ -77,9 +78,9 @@ def run(opts , conf):
     curIp = ipGet.getIP()
     LOG.debug('Current external IP: %s' % curIp)
     for fqdn in conf.getlist('main' , 'fqdns'):
-        r53Obj = R53(fqdn , conf.get(fqdn , 'zone') ,
+        r53Obj = r53.R53(fqdn , conf.get(fqdn , 'zone') ,
             conf.get(fqdn , 'accesskey') , conf.get(fqdn , 'secretkey') ,
-            cont.getint(fqdn , 'ttl'))
+            conf.getint(fqdn , 'ttl'))
         r53Ip = r53Obj.getIPR53()
         LOG.debug('Current IP for %s: %s' % (fqdn , r53Ip))
         if r53Ip != curIp:
@@ -93,7 +94,9 @@ def main():
     if opts.daemon:
         # Do the things we need to do when we daemonize
         try:
-            createLogDir(os.path.dirname(conf.get('main' , 'logfile')))
+            createLogDir(os.path.dirname(conf.get('main' , 'logfile')) , 
+                conf.get('main' , 'runasuser') , 
+                conf.get('main' , 'runasgroup'))
         except Exception as e:
             print >> sys.stderr , 'Could not create log directory for ' \
                 'logfile %s: %s' % (conf.get('main' , 'logfile') , e)
@@ -106,14 +109,15 @@ def main():
         except Exception as e:
             LOG.error('Could not write pidfile to %s' % opts.pidfile)
             sys.exit(1)
-        try:
-            dropPrivs(conf.get('main' , 'runasuser') , 
-                conf.get('main' , 'runasgroup'))
-        except Exception as e:
-            LOG.error('Could not drop privileges to %s/%s: %s' % (
-                conf.get('main' , 'runasuser') , 
-                conf.get('main' , 'runasgroup') , e))
-            sys.exit(1)
+        if os.geteuid() == 0:
+            try:
+                dropPrivs(conf.get('main' , 'runasuser') , 
+                    conf.get('main' , 'runasgroup'))
+            except Exception as e:
+                LOG.error('Could not drop privileges to %s/%s: %s' % (
+                    conf.get('main' , 'runasuser') , 
+                    conf.get('main' , 'runasgroup') , e))
+                sys.exit(1)
     setLogger(opts , conf)
     # Set the global log variable
     if opts.daemon:
@@ -123,6 +127,8 @@ def main():
             run(opts , conf)
         except Exception as e:
             LOG.error('Error trying to update IP: %s' % e)
+            if opts.debug:
+                LOG.error(traceback.format_exc())
             sys.exit(1)
 
 if __name__ == '__main__':
@@ -130,6 +136,7 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         msg = 'Unknown exception occurred: %s' % e
+        msg += traceback.format_exc()
         if LOG is not None:
             LOG.error(msg)
         else:

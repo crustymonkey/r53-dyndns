@@ -19,7 +19,7 @@ class IPGet(object):
         """
         self.url = url
         self.timeout = int(timeout)
-        self.maxRetries = int(maxRetries)
+        self.maxRetries = int(retries)
         self._opener = self._getOpener()
 
     def getIP(self):
@@ -44,7 +44,7 @@ class IPGet(object):
             # We have failed, raise the last error
             raise err
         # If we get here, we should have a result, parse the IP out of it
-        m = reIpv4.search(res.read())
+        m = self.reIpv4.search(res.read())
         if not m:
             raise IPParseError('Could not parse an IPv4 address out of '
                 'result from %s' % self.url)
