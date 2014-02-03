@@ -12,6 +12,8 @@ import libr53dyndns as r53
 import traceback
 import os , logging , time , sys
 
+__version__ = '0.1.0'
+
 LOG = None
 
 def getOpts():
@@ -28,7 +30,12 @@ def getOpts():
         'process is being run as a daemon (-d option) [default: %default]')
     p.add_option('-D' , '--debug' , action='store_true' , default=False ,
         dest='debug' , help='Output debugging info [default: %default]')
+    p.add_option('-V' , '--version' , action='store_true' , default=False ,
+        dest='version' , help='Print version and exit')
     opts , args = p.parse_args()
+    if opts.version:
+        print '%s: %s' % (os.path.basename(sys.argv[0]) , __version__)
+        sys.exit(0)
     return (opts , args)
 
 def getConfig(opts):

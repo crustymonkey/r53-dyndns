@@ -26,7 +26,7 @@ setup(
     description='Route53 dynamic DNS agent' ,
     long_description='Dynamic DNS agent which uses Amazon\'s '
         'Route53 and your own domain as the dns host.' ,
-    scripts=glob.glob('bin/*') ,
+    scripts=['r53-dyndns.py'] ,
     data_files=[ ('etc' , glob.glob('etc/*')) ] ,
     packages=['libr53dyndns'] ,
     classifiers=[
