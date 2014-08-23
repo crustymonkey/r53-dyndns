@@ -41,7 +41,7 @@ default location (/etc/r53-dyndns.cfg) and the script is installed in
     * * * * *       /usr/bin/r53-dyndns.py
 
 #### Running a Daemon (advanced method) ####
-I ***highly recommed*** you configure a proper run as user/group in the config
+I ***highly recommend*** you configure a proper run as user/group in the config
 and start this as root.  This will then set up the log and run directories
 with the proper permissions.
 
