@@ -12,7 +12,7 @@ import libr53dyndns as r53
 import traceback
 import os , logging , time , sys
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 LOG = None
 

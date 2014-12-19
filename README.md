@@ -25,8 +25,9 @@ domain as the dns fqdn to update.
 
 ## Usage ##
 ### Config ###
-Your config file (r53-dyndns.cfg) should be installed in /etc.  Open that up,
-read through the comments and set up everything as you desire.
+Your config file (r53-dyndns.cfg) should be installed in /etc (if it's not
+there, it's likely in /usr/local/etc).  Open that up, read through the 
+comments and set up everything as you desire.
 
 ### Running ###
 There are basically 2 ways you can run this: a cron job or as a daemon.  I
