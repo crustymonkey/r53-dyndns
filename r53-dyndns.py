@@ -28,6 +28,12 @@ def getOpts():
         default='/var/run/r53-dyndns/r53-dyndns.pid' , help='The pidfile '
         'for the process.  Note that this will only be created when the '
         'process is being run as a daemon (-d option) [default: %default]')
+    p.add_option('-l' , '--log-to-file' , action='store_true' , default=False ,
+        dest='log_to_file' , 
+        help='Always log to the specified log file.  Normally, logs are '
+        'written to the log file only when running as a daemon.  This will '
+        'override the non-daemon behavior of logging to the terminal '
+        '[default: %default]')
     p.add_option('-D' , '--debug' , action='store_true' , default=False ,
         dest='debug' , help='Output debugging info [default: %default]')
     p.add_option('-V' , '--version' , action='store_true' , default=False ,
@@ -49,7 +55,7 @@ def setLogger(opts , conf):
         return
     logger = logging.getLogger('r53-dyndns')
     handler = None
-    if opts.daemon:
+    if opts.daemon or opts.log_to_file:
         handler = TimedRotatingFileHandler(conf.get('main' , 'logfile') , 'D' , 
             backupCount=conf.getint('main' , 'numlogs'))
     else:
