@@ -19,7 +19,7 @@ if boto.__version__ < '2.24.0':
 
 setup(
     name='r53-dyndns' ,
-    version='0.1.1' ,
+    version='0.1.2' ,
     author='Jay Deiman' ,
     author_email='admin@splitstreams.com' ,
     url='https://github.com/crustymonkey/r53-dyndns' ,
