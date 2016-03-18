@@ -1,6 +1,18 @@
 
 from libr53dyndns.errors import IPParseError
+import socket
+from httplib import HTTPConnection
 import urllib2 , re , time
+
+def _connect_override(self):
+    host = socket.gethostbyname(self.host)
+    self.sock = socket.create_connection((host, self.port),
+        self.timeout, self.source_address)
+
+    if self._tunnel_host:
+        self._tunnel()
+
+HTTPConnection.connect = _connect_override
 
 class IPGet(object):
     """
