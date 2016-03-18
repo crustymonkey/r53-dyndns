@@ -1,21 +1,10 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-import sys , glob
+from setuptools import setup
+import sys, glob, os
 
-try:
-    import boto
-except:
-    print >> sys.stderr , 'You must have python boto version 2.24.0 or '
-    print >> sys.stderr , 'higher. Get the latest devel version from ' \
-        'https://github.com/boto/boto'
-    sys.exit(1)
-
-if boto.__version__ < '2.24.0':
-    print >> sys.stderr , 'You must have python boto version 2.24.0 or '
-    print >> sys.stderr , 'higher. Get the latest devel version from ' \
-        'https://github.com/boto/boto'
-    sys.exit(1)
+req_file = os.path.join(os.path.dirname(__file__), 'requirements.txt')
+requirements = [l for line in open(req_file) if line]
 
 setup(
     name='r53-dyndns' ,
@@ -29,6 +18,7 @@ setup(
     scripts=['r53-dyndns.py'] ,
     data_files=[ ('etc' , glob.glob('etc/*')) ] ,
     packages=['libr53dyndns'] ,
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta' ,
         'Environment :: Console' ,
