@@ -4,7 +4,7 @@ from setuptools import setup
 import sys, glob, os
 
 req_file = os.path.join(os.path.dirname(__file__), 'requirements.txt')
-requirements = [l for line in open(req_file) if line]
+requirements = [line for line in open(req_file) if line]
 
 setup(
     name='r53-dyndns' ,
