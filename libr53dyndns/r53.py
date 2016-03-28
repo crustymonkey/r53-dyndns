@@ -65,7 +65,7 @@ class R53(object):
         """
         Update the fqdn with the new IP addr
         """
-        if ivp4 is None and ipv6 is None:
+        if ipv4 is None and ipv6 is None:
             raise InvalidInputError('You must specify either (or both) an '
                 'ipv4 address or ipv6 address to update')
         changes = []
@@ -76,7 +76,7 @@ class R53(object):
         if ipv6:
             chg = self._get_chg_frame()
             chg['ResourceRecordSet']['Type'] = 'AAAA'
-            chg['ResourceRecordSet']['ResourceRecords'].append({'Value': ipv4})
+            chg['ResourceRecordSet']['ResourceRecords'].append({'Value': ipv6})
             changes.append(chg)
 
         resp = self._r53.change_resource_record_sets(
@@ -98,10 +98,10 @@ class R53(object):
             HostedZoneId=self._get_zone_id(),
             StartRecordName=self.fqdn,
             StartRecordType=rtype,
-            MaxItems=1,
+            MaxItems='1',
         )
         
-        if resp['ResourceRecordSets'][0]['Name'] == self.fqdn and \
+        if resp['ResourceRecordSets'][0]['Name'].rstrip('.') == self.fqdn and \
                 resp['ResourceRecordSets'][0]['Type'] == rtype:
             return resp['ResourceRecordSets'][0]['ResourceRecords'][0]['Value']
 
@@ -114,13 +114,13 @@ class R53(object):
         if self._zone_id is not None:
             return self._zone_id
 
-        zones = self._53.list_hosted_zones_by_name(self.zone)
+        zones = self._r53.list_hosted_zones_by_name(DNSName=self.zone)
         for zone in zones['HostedZones']:
             # The first zone should be the one we are looking for, but we
             # won't make assumptions
-            if zone['Name'] == self.zone:
+            if zone['Name'].rstrip('.') == self.zone:
                 self._zone_id = zone['Id']
-                return self._zone
+                return self._zone_id
 
         # If we get here, the zone isn't found, raise an exception
         raise ZoneNotFoundError('Could not find the zone: {0}'.format(
@@ -132,9 +132,10 @@ class R53(object):
         """
         chg_framework = {
             'Action': 'UPSERT',
-            'ResourseRecordSet': {
+            'ResourceRecordSet': {
                 'Name': self.fqdn,
                 'Type': 'A',
+                'TTL': self.ttl,
                 'ResourceRecords': [],
             },
         }
