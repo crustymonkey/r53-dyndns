@@ -8,6 +8,7 @@ record with your dynamic ip when the IP changes
 from optparse import OptionParser
 from libr53dyndns.utils import daemonize, writePid, createLogDir, dropPrivs
 from logging.handlers import TimedRotatingFileHandler
+from ConfigParser import NoOptionError
 import libr53dyndns as r53
 import traceback
 import os, logging, time, sys
@@ -90,11 +91,20 @@ def run(opts, conf):
         conf.getint('main', 'iplookuptimeout'),
         conf.getint('main', 'iplookupmaxretries'))
 
-    updV4 = conf.getboolean('main', 'ipv4')
-    updV6 = conf.getboolean('main', 'ipv6')
+    # If there's an old config, let's keep this as the previous versions,
+    # which was v4 only
+    try:
+        updV4 = conf.getboolean('main', 'ipv4')
+    except NoOptionError:
+        updV4 = True
+    try:
+        updV6 = conf.getboolean('main', 'ipv6')
+    except NoOptionError:
+        updV6 = False
 
     curIpv4 = ipGet.getIP()
-    curIpv6 = ipGet.getIP(False)
+    if updV6:
+        curIpv6 = ipGet.getIP(False)
 
     LOG.debug('Current external IPv4: %s' % curIpv4)
     LOG.debug('Current external IPv6: %s' % curIpv6)
@@ -110,9 +120,9 @@ def run(opts, conf):
                 LOG.info('Changing IPv6 for %s from %s to %s' % (fqdn, r53Ip, 
                     curIpv4))
                 r53Obj.update(curIpv4)
-        if updV4:
+        if updV6:
             r53Ip = r53Obj.get_ip_r53(False)
-            LOG.debug('Current IPv4 for %s: %s' % (fqdn, r53Ip))
+            LOG.debug('Current IPv6 for %s: %s' % (fqdn, r53Ip))
             if r53Ip != curIpv6:
                 LOG.info('Changing IPv6 for %s from %s to %s' % (fqdn, r53Ip,
                     curIpv6))
