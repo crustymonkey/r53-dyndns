@@ -103,11 +103,14 @@ def run(opts, conf):
         updV6 = False
 
     curIpv4 = ipGet.getIP()
+    curIpv6 = None
     if updV6:
         curIpv6 = ipGet.getIP(False)
 
-    LOG.debug('Current external IPv4: %s' % curIpv4)
-    LOG.debug('Current external IPv6: %s' % curIpv6)
+    if curIpv4:
+        LOG.debug('Current external IPv4: %s' % curIpv4)
+    if curIpv6:
+        LOG.debug('Current external IPv6: %s' % curIpv6)
 
     for fqdn in conf.getlist('main', 'fqdns'):
         r53Obj = r53.R53(fqdn, conf.get(fqdn, 'zone'),
