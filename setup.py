@@ -2,13 +2,14 @@
 
 from setuptools import setup
 import sys, glob, os
+from libr53dyndns import __version__
 
 req_file = os.path.join(os.path.dirname(__file__), 'requirements.txt')
 requirements = [line for line in open(req_file) if line]
 
 setup(
     name='r53-dyndns' ,
-    version='0.1.3' ,
+    version=__version__,
     author='Jay Deiman' ,
     author_email='admin@splitstreams.com' ,
     url='https://github.com/crustymonkey/r53-dyndns' ,
