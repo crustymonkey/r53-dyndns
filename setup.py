@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-import sys , glob
+from setuptools import setup
+import sys, glob, os
+
+req_file = os.path.join(os.path.dirname(__file__), 'requirements.txt')
+requirements = [line for line in open(req_file) if line]
 
 setup(
     name='r53-dyndns' ,
@@ -15,7 +18,7 @@ setup(
     scripts=['r53-dyndns.py'] ,
     data_files=[ ('etc' , glob.glob('etc/*')) ] ,
     packages=['libr53dyndns'] ,
-    install_requires=['boto>=2.24.0'],
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta' ,
         'Environment :: Console' ,

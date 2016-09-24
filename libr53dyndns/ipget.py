@@ -1,6 +1,8 @@
 
 from libr53dyndns.errors import IPParseError
-import urllib2 , re , time
+from cStringIO import StringIO
+import pycurl
+import re, time
 
 class IPGet(object):
     """
@@ -8,6 +10,7 @@ class IPGet(object):
     """
     # Define a simple ipv4 parser
     reIpv4 = re.compile(r'(?:\d{1,3}\.){3}\d{1,3}')
+    reIpv6 = re.compile(r'(?:[a-f0-9:]+)')
 
     def __init__(self , url , timeout=3 , retries=3):
         """
@@ -20,12 +23,16 @@ class IPGet(object):
         self.url = url
         self.timeout = int(timeout)
         self.maxRetries = int(retries)
-        self._opener = self._getOpener()
 
-    def getIP(self):
+    def getIP(self, ipv4=True):
         """
         Returns a string representation of the external IPv4 address for
         this host
+
+        ipv4:bool       If set to True, use IPv4 for the lookup.  If False,
+                        use IPv6
+
+        returns str     Returns the IP as a string
         """
         err = None
         tries = 0
@@ -33,7 +40,7 @@ class IPGet(object):
         while tries < self.maxRetries:
             tries += 1
             try:
-                res = self._opener.open(self.url , timeout=self.timeout)
+                res = self._get_url(ipv4)
             except Exception as e:
                 err = e
                 # Sleep for a second before a retry
@@ -44,17 +51,26 @@ class IPGet(object):
             # We have failed, raise the last error
             raise err
         # If we get here, we should have a result, parse the IP out of it
-        m = self.reIpv4.search(res.read())
+        m = self.reIpv4.search(res) if ipv4 else self.reIpv6.search(res)
         if not m:
             raise IPParseError('Could not parse an IPv4 address out of '
                 'result from %s' % self.url)
         # We have parsed an IPv4 addr, return it
         return m.group(0)
 
-    def _getOpener(self):
-        """
-        We aren't adding any odd handlers now, but if there was a need
-        in the future, the opener generation encapsulated here
-        """
-        opener = urllib2.build_opener()
-        return opener
+    def _get_url(self, v4=True):
+        c = pycurl.Curl()
+        buf = StringIO()
+
+        c.setopt(c.URL, self.url)
+        c.setopt(c.WRITEDATA, buf)
+        c.setopt(c.CONNECTTIMEOUT, self.timeout)
+        ipresolve = c.IPRESOLVE_V4 if v4 else c.IPRESOLVE_V6
+        c.setopt(c.IPRESOLVE, ipresolve)
+        c.perform()
+        c.close()
+
+        ret = buf.getvalue()
+        buf.close()
+
+        return ret
