@@ -3,7 +3,7 @@ import boto3
 import time
 import socket
 
-from libr53dyndns import InvalidInputError
+from libr53dyndns.errors import InvalidInputError
 
 class R53(object):
     """
