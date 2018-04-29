@@ -105,7 +105,10 @@ def run(opts, conf):
     curIpv4 = ipGet.getIP()
     curIpv6 = None
     if updV6:
-        curIpv6 = ipGet.getIP(False)
+        try:
+            curIpv6 = ipGet.getIP(False)
+        except Exception as e:
+            LOG.warning('Could not get an IPv6 address')
 
     if curIpv4:
         LOG.debug('Current external IPv4: %s' % curIpv4)
@@ -116,14 +119,14 @@ def run(opts, conf):
         r53Obj = r53.R53(fqdn, conf.get(fqdn, 'zone'),
             conf.get(fqdn, 'accesskey'), conf.get(fqdn, 'secretkey'),
             conf.getint(fqdn, 'ttl'))
-        if updV4:
+        if curIpv4 and updV4:
             r53Ip = r53Obj.get_ip_r53()
             LOG.debug('Current IPv4 for %s: %s' % (fqdn, r53Ip))
             if r53Ip != curIpv4:
                 LOG.info('Changing IPv6 for %s from %s to %s' % (fqdn, r53Ip, 
                     curIpv4))
                 r53Obj.update(curIpv4)
-        if updV6:
+        if curIpv6 and updV6:
             r53Ip = r53Obj.get_ip_r53(False)
             LOG.debug('Current IPv6 for %s: %s' % (fqdn, r53Ip))
             if r53Ip != curIpv6:

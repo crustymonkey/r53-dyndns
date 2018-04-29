@@ -3,6 +3,8 @@ import boto3
 import time
 import socket
 
+from libr53dyndns import InvalidInputError
+
 class R53(object):
     """
     Wrap the boto Route53 interface with some specific convenience
