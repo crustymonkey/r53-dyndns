@@ -1,6 +1,6 @@
 
 from libr53dyndns.errors import IPParseError
-from cStringIO import StringIO
+from io import BytesIO
 import pycurl
 import re, time
 
@@ -9,8 +9,8 @@ class IPGet(object):
     This defines a simple interface for grabbing the external IP address
     """
     # Define a simple ipv4 parser
-    reIpv4 = re.compile(r'(?:\d{1,3}\.){3}\d{1,3}')
-    reIpv6 = re.compile(r'(?:[a-f0-9:]+)')
+    re_ipv4 = re.compile(r'(?:\d{1,3}\.){3}\d{1,3}')
+    re_ipv6 = re.compile(r'(?:[a-f0-9:]+)')
 
     def __init__(self , url , timeout=3 , retries=3):
         """
@@ -22,9 +22,9 @@ class IPGet(object):
         """
         self.url = url
         self.timeout = int(timeout)
-        self.maxRetries = int(retries)
+        self.max_retries = int(retries)
 
-    def getIP(self, ipv4=True):
+    def get_ip(self, ipv4=True):
         """
         Returns a string representation of the external IPv4 address for
         this host
@@ -37,7 +37,7 @@ class IPGet(object):
         err = None
         tries = 0
         res = None
-        while tries < self.maxRetries:
+        while tries < self.max_retries:
             tries += 1
             try:
                 res = self._get_url(ipv4)
@@ -47,11 +47,13 @@ class IPGet(object):
                 time.sleep(1)
             else:
                 break
-        if tries >= self.maxRetries:
+
+        if tries >= self.max_retries:
             # We have failed, raise the last error
             raise err
+
         # If we get here, we should have a result, parse the IP out of it
-        m = self.reIpv4.search(res) if ipv4 else self.reIpv6.search(res)
+        m = self.re_ipv4.search(res) if ipv4 else self.re_ipv6.search(res)
         if not m:
             raise IPParseError('Could not parse an IPv4 address out of '
                 'result from %s' % self.url)
@@ -60,7 +62,7 @@ class IPGet(object):
 
     def _get_url(self, v4=True):
         c = pycurl.Curl()
-        buf = StringIO()
+        buf = BytesIO()
 
         c.setopt(c.URL, self.url)
         c.setopt(c.WRITEDATA, buf)
@@ -73,4 +75,4 @@ class IPGet(object):
         ret = buf.getvalue()
         buf.close()
 
-        return ret
+        return ret.decode('utf-8')

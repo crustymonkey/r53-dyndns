@@ -1,13 +1,13 @@
 
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 import re
 
 class DynConfig(SafeConfigParser):
     """
     Subclass of SafeConfigParser to define some convenience methods
     """
-    reListSplit = re.compile('[\s,;]*')
+    re_list_split = re.compile('[\s,;]+')
 
     def getlist(self , section , key):
         val = self.get(section , key)
-        return self.reListSplit.split(val)
+        return self.re_list_split.split(val)

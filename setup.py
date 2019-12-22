@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from setuptools import setup
 import sys, glob, os
@@ -28,7 +28,7 @@ setup(
         'Natural Language :: English' ,
         'Topic :: Internet :: Name Service (DNS)' ,
         'Operating System :: POSIX' ,
-        'Programming Language :: Python' ,
+        'Programming Language :: Python :: 3' ,
         'Topic :: System :: Systems Administration' ,
     ]
 )
