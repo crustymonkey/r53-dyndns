@@ -164,7 +164,7 @@ def main():
         try:
             write_pid(
                 args.pidfile,
-                conf.get('main', 'runasuser'), 
+                conf.get('main', 'runasuser'),
                 conf.get('main', 'runasgroup'),
             )
         except Exception as e:

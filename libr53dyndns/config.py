@@ -8,6 +8,6 @@ class DynConfig(SafeConfigParser):
     """
     re_list_split = re.compile('[\s,;]+')
 
-    def getlist(self , section , key):
-        val = self.get(section , key)
+    def getlist(self, section, key):
+        val = self.get(section, key)
         return self.re_list_split.split(val)

@@ -2,6 +2,7 @@
 import boto3
 import time
 import socket
+import re
 
 from libr53dyndns.errors import InvalidInputError
 
@@ -11,7 +12,7 @@ class R53(object):
     operations
     """
     
-    def __init__(self, fqdn , zone , ak , sk , ttl=60):
+    def __init__(self, fqdn, zone, ak, sk, ttl=60):
         """
         Initialize everything given the inputs
 
@@ -48,6 +49,21 @@ class R53(object):
                 self.update(ipv6=self.bogus_v6)
                 return self.bogus_v6
         return rec
+
+    #This fixes problems with wildcard dns
+    #Based on the gist below
+    #https://gist.github.com/meonkeys/4482362#file-route53octals-py-L13
+    @staticmethod
+    def octal_replace(x):
+        c = int(x.group(1), 8)
+        if c > 0x20 and c < 0x2e or c > 0x2e and c < 0x7f:
+            return chr(c)
+        else:
+            return x.group(0)
+
+    @staticmethod
+    def pretty_dns_name(value):
+        return re.sub(r'\\(\d{3})', R53.octal_replace, value)
 
     def get_ip_dns(self, v4=True):
         """
@@ -102,8 +118,9 @@ class R53(object):
             StartRecordType=rtype,
             MaxItems='1',
         )
-        
-        if resp['ResourceRecordSets'][0]['Name'].rstrip('.') == self.fqdn and \
+
+        #R53.prettyDnsName handles encoded R53 API response with *,- etc included
+        if R53.pretty_dns_name(resp['ResourceRecordSets'][0]['Name'].rstrip('.')) == self.fqdn and \
                 resp['ResourceRecordSets'][0]['Type'] == rtype:
             return resp['ResourceRecordSets'][0]['ResourceRecords'][0]['Value']
 
