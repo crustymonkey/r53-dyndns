@@ -54,7 +54,7 @@ class R53(object):
     #Based on the gist below
     #https://gist.github.com/meonkeys/4482362#file-route53octals-py-L13
     @staticmethod
-    def octalReplace(x):
+    def octal_replace(x):
         c = int(x.group(1), 8)
         if c > 0x20 and c < 0x2e or c > 0x2e and c < 0x7f:
             return chr(c)
@@ -62,8 +62,8 @@ class R53(object):
             return x.group(0)
 
     @staticmethod
-    def prettyDnsName(value):
-        return re.sub(r'\\(\d{3})', R53.octalReplace, value)
+    def pretty_dns_name(value):
+        return re.sub(r'\\(\d{3})', R53.octal_replace, value)
 
     def get_ip_dns(self, v4=True):
         """
