@@ -120,7 +120,7 @@ class R53(object):
         )
 
         #R53.prettyDnsName handles encoded R53 API response with *,- etc included
-        if R53.prettyDnsName(resp['ResourceRecordSets'][0]['Name'].rstrip('.')) == self.fqdn and \
+        if R53.pretty_dns_name(resp['ResourceRecordSets'][0]['Name'].rstrip('.')) == self.fqdn and \
                 resp['ResourceRecordSets'][0]['Type'] == rtype:
             return resp['ResourceRecordSets'][0]['ResourceRecords'][0]['Value']
 
