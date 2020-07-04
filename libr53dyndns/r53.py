@@ -12,7 +12,7 @@ class R53(object):
     operations
     """
     
-    def __init__(self, fqdn , zone , ak , sk , ttl=60):
+    def __init__(self, fqdn, zone, ak, sk, ttl=60):
         """
         Initialize everything given the inputs
 

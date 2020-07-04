@@ -12,7 +12,7 @@ class IPGet(object):
     re_ipv4 = re.compile(r'(?:\d{1,3}\.){3}\d{1,3}')
     re_ipv6 = re.compile(r'(?:[a-f0-9:]+)')
 
-    def __init__(self , url , timeout=3 , retries=3):
+    def __init__(self, url, timeout=3, retries=3):
         """
         Set up some instance variables
 

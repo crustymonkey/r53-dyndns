@@ -164,8 +164,8 @@ def main():
         try:
             write_pid(
                 args.pidfile,
-                conf.get('main','runasuser'),
-                conf.get('main','runasgroup'),
+                conf.get('main', 'runasuser'),
+                conf.get('main', 'runasgroup'),
             )
         except Exception as e:
             LOG.error('Could not write pidfile to {}'.format(args.pidfile))
