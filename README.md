@@ -5,11 +5,17 @@
 This is a dynamic DNS agent which uses Amazon's Route53 and your own 
 domain as the dns fqdn to update.
 
+**BACKWARDS COMPATIBLE BREAKAGE: Due to a dependency change from `pycurl` to
+`dnspython` in 0.4.0, be careful with a 0.4.0 upgrade!**
+
 ## Requirements ##
-* python boto version >= 2.24.0.  Just head over to the github page and
+* python3 boto3 version >= 1.3.0.  Just head over to the github page and
   download the latest from the develop branch. Note that (at the time of
   this writing), the version included in your package manager is likely
-  too old.  https://github.com/boto/boto
+  too old.  https://github.com/boto/boto3
+* python3 dnspython version >= 1.16.0.  You can get it from github at 
+  https://github.com/rthalley/dnspython or install via your package manager 
+  or pip.
 * An AWS Account (or at least an IAM user with access to the zone(s) you
   wish to update).  This should be fairly obvious...
 
