@@ -128,7 +128,7 @@ def run(args, conf):
             r53_ip = r53_obj.get_ip_r53()
             LOG.debug('Current IPv4 for {}: {}'.format(fqdn, r53_ip))
             if r53_ip != cur_ipv4:
-                LOG.info('Changing IPv6 for {} from {} to {}'.format(
+                LOG.info('Changing IPv4 for {} from {} to {}'.format(
                     fqdn, r53_ip, cur_ipv4))
                 r53_obj.update(cur_ipv4)
 
