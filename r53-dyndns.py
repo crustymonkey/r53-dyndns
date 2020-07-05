@@ -134,7 +134,7 @@ def run(args, conf):
 
         if cur_ipv6 and upd_v6:
             r53_ip = r53_obj.get_ip_r53(False)
-            LOG.debug('Current IPv6 for {}: {}'.format(fqdn, r53Ip))
+            LOG.debug('Current IPv6 for {}: {}'.format(fqdn, r53_ip))
             if r53_ip != cur_ipv6:
                 LOG.info('Changing IPv6 for {} from {} to {}'.format(
                     fqdn, r53_ip, cur_ipv6))
