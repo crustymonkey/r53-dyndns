@@ -85,7 +85,7 @@ class IPGet(object):
         
         # Get the ip for this hostname
         qtype = 'A' if v4 else 'AAAA'
-        ip = str(self.resolver.query(hostname, qtype)[0])
+        ip = self._query(hostname, qtype)
         ip = ip if v4 else '[{}]'.format(ip)
         
         ip_url = '{}{}{}{}'.format(
@@ -108,3 +108,10 @@ class IPGet(object):
         ctx.verify_mode = ssl.CERT_NONE
 
         return ctx
+
+    def _query(self, hostname, qtype, single=True):
+        resp = self.resolver.query(hostname, qtype)
+        if single:
+            return str(resp[0])
+
+        return [str(a) for a in resp]
