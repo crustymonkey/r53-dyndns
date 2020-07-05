@@ -7,3 +7,6 @@ class ZoneNotFoundError(Exception):
 
 class InvalidInputError(Exception):
     pass
+
+class InvalidURL(Exception):
+    pass

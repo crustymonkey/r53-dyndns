@@ -1,8 +1,10 @@
-
-from libr53dyndns.errors import IPParseError
+from dns.resolver import Resolver
 from io import BytesIO
-import pycurl
-import re, time
+from libr53dyndns.errors import IPParseError, InvalidURL
+from urllib.request import urlopen, Request
+import re
+import ssl
+import time
 
 class IPGet(object):
     """
@@ -23,6 +25,7 @@ class IPGet(object):
         self.url = url
         self.timeout = int(timeout)
         self.max_retries = int(retries)
+        self.resolver = Resolver()
 
     def get_ip(self, ipv4=True):
         """
@@ -56,23 +59,52 @@ class IPGet(object):
         m = self.re_ipv4.search(res) if ipv4 else self.re_ipv6.search(res)
         if not m:
             raise IPParseError('Could not parse an IPv4 address out of '
-                'result from %s' % self.url)
+                'result from {}'.format(self.url))
         # We have parsed an IPv4 addr, return it
         return m.group(0)
 
     def _get_url(self, v4=True):
-        c = pycurl.Curl()
-        buf = BytesIO()
+        ip_url, hostname = self._get_ip_url(v4)
+        req = Request(ip_url, headers={'Host': hostname})
+        resp = urlopen(req, context=self._get_no_verify_context())
 
-        c.setopt(c.URL, self.url)
-        c.setopt(c.WRITEDATA, buf)
-        c.setopt(c.CONNECTTIMEOUT, self.timeout)
-        ipresolve = c.IPRESOLVE_V4 if v4 else c.IPRESOLVE_V6
-        c.setopt(c.IPRESOLVE, ipresolve)
-        c.perform()
-        c.close()
+        ip = resp.read()
 
-        ret = buf.getvalue()
-        buf.close()
+        return ip.decode('utf-8').strip()
 
-        return ret.decode('utf-8')
+    def _get_ip_url(self, v4=True):
+        m = re.match('(https?://)([^/]+)(.*)', self.url)
+        if not m:
+            raise InvalidURL('Could not parse url: {}'.format(self.url))
+
+        port = ''
+        if ':' in m.group(2):
+            hostname, port = m.group(2).split(':')
+        else:
+            hostname = m.group(2)
+        
+        # Get the ip for this hostname
+        qtype = 'A' if v4 else 'AAAA'
+        ip = str(self.resolver.query(hostname, qtype)[0])
+        ip = ip if v4 else '[{}]'.format(ip)
+        
+        ip_url = '{}{}{}{}'.format(
+            m.group(1),
+            ip,
+            ':{}'.format(port) if port else '',
+            m.group(3),
+        )
+
+        return (ip_url, hostname)
+
+    def _get_no_verify_context(self):
+        """
+        Turn off certificate validation for the ip lookups.  This allows
+        for using IPs in the URL with an explicit Host header and bypasses
+        the need for pycurl
+        """
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        return ctx

@@ -1,8 +1,8 @@
 
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 import re
 
-class DynConfig(SafeConfigParser):
+class DynConfig(ConfigParser):
     """
     Subclass of SafeConfigParser to define some convenience methods
     """
